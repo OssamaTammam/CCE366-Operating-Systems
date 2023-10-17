@@ -25,8 +25,19 @@ checkDirectory() {
 }
 
 # Check if needed directories exist and if not create them
-checkDirectory dir
-checkDirectory backupDir
+checkDirectory "$dir"
+checkDirectory "$backupDir"
+
+directoryInfoLast="directory-info.last"
+
+# Check if the file or directory exists
+if [ -e "$directoryInfoLast" ]; then
+    echo "The file or directory '$directoryInfoLast' exists."
+else
+    # Create the file or directory
+    touch "$directoryInfoLast"
+    echo "Created the file or directory '$directoryInfoLast'."
+fi
 
 # Check if files in the source directory have been modified
 if find "$dir" -newer "directory-info.last" -print | grep -q .; then
