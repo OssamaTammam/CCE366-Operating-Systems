@@ -1,0 +1,11 @@
+SOURCE_DIRECTORY= source
+BACKUP_DIRECTORY= backup
+INTERVAL= 10
+MAX_BACKUPS= 3
+
+create-directory:
+	./directory.sh "$(SOURCE_DIRECTORY)" 
+	./directory.sh "$(BACKUP_DIRECTORY)"
+
+run:
+	./backup.sh "$(SOURCE_DIRECTORY)" "$(BACKUP_DIRECTORY)" $(INTERVAL) $(MAX_BACKUPS)
