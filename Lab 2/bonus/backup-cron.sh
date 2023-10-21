@@ -4,6 +4,8 @@
 dir="$1"
 backupDir="$2"
 maxBackups="$3"
+currDirectory=$(pwd)
+echo"$currDirectory"
 
 createBackup() {
     # timestamp used to name the backup file
@@ -15,20 +17,19 @@ createBackup() {
 
 checkDirectory() {
     directoryPath="$1"
-    if [ -d "$directoryPath" ]; then
+    if [ -d "$currDirectory/$directoryPath" ]; then
         echo "Directory already exists."
     else
         echo "Directory does not exist. Creating it now..."
-        mkdir -p "$directoryPath"
+        mkdir -p "$currDirectory/$directoryPath"
         echo "Directory created successfully."
     fi
 }
 
 # Check if needed directories exist and if not create them
-checkDirectory "$dir"
-checkDirectory "$backupDir"
-
-directoryInfoLast="directory-info.last"
+checkDirectory "$currDirectory/$dir"
+checkDirectory "$currDirectory/$backupDir"
+directoryInfoLast="$currDirectory/directory-info.last"
 
 # Check if the file or directory exists
 if [ -e "$directoryInfoLast" ]; then
@@ -45,12 +46,12 @@ if find "$dir" -newer "directory-info.last" -print | grep -q .; then
     echo "Backup successful"
 
     # Delete oldest file if max number of backups reached
-    numBackups=$(ls -1 "$backupDir" | wc -l)
+    numBackups=$(ls -1 "$currDirectory/$backupDir" | wc -l)
     if [ "$numBackups" -gt "$maxBackups" ]; then
-        oldestBackup=$(ls -t -1 "$backupDir" | tail -1)
+        oldestBackup=$(ls -t -1 "$currDirectory/$backupDir" | tail -1)
 
         # Remove the oldest backup
-        rm -rf "$backupDir/$oldestBackup"
+        rm -rf "$currDirectory/$backupDir/$oldestBackup"
         echo "Deleted oldest backup: $oldestBackup"
     fi
 
