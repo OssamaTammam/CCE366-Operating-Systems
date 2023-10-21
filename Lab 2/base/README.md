@@ -11,8 +11,11 @@ Simple shell script that backs up directories periodically
         Makefile that takes in parameters and runs scripts
 
 ## Prerequisite
-1. Open the terminal in the directory
-2. Run the following commands
+1. Install make using the following command
+   ```bash
+   sudo apt install make
+   ```
+2. Open the terminal in the directory and run the following commands
    ```bash
    chmod +x backup.sh
    chmod +x directory.sh
