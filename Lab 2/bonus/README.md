@@ -6,6 +6,13 @@ Simple cronjob shell script that backs up directories periodically
     backup-cron.sh
     Shell script that checks for directories and then backs up the source directory
 
+## Prerequisite
+1. Open the terminal in the directory
+2. Run the following commands
+   ```bash
+   chmod +x backup-cron.sh
+   ```
+
 ## Setup
 1. Open a terminal and navigate to the directory you want the files to be created
 2. Use the following command ```crontab -e``` to open the crontab window

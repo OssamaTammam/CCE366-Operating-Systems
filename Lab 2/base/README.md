@@ -10,6 +10,14 @@ Simple shell script that backs up directories periodically
     MAKEFILE
         Makefile that takes in parameters and runs scripts
 
+## Prerequisite
+1. Open the terminal in the directory
+2. Run the following commands
+   ```bash
+   chmod +x backup.sh
+   chmod +x directory.sh
+   ```
+
 ## Usage
 1. Navigate in the terminal to where the script is located
 2. Run the following bash command
