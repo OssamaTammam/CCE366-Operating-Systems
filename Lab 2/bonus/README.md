@@ -7,9 +7,10 @@ Simple cronjob shell script that backs up directories periodically
     Shell script that checks for directories and then backs up the source directory
 
 ## Prerequisite
-1. Install make using the following command
+1. Install make and cron tab using the following commands
    ```bash
    sudo apt install make
+   sudo apt install cron
    ```
 2. Open the terminal in the directory and run the following command
    ```bash
