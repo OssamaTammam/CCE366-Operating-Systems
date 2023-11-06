@@ -1,18 +1,18 @@
-Lab 2/base/backup
-Lab 2/base/source
-Lab 2/base/directory-info.last
-Lab 2/bonus/backup
-Lab 2/bonus/directory-info.last
-Lab 2/bonus/source
+Lab_2/base/backup
+Lab_2/base/source
+Lab_2/base/directory-info.last
+Lab_2/bonus/backup
+Lab_2/bonus/directory-info.last
+Lab_2/bonus/source
 7352-lab2.tar.gz
-Lab 2/bonus/crontab
+Lab_2/bonus/crontab
 .vscode
-Lab 3/y.tab.h
-Lab 3/examples
-Lab 3/command.o
-Lab 3/y.tab.o
-Lab 3/y.tab.c
-Lab 3/shell
-Lab 3/lex.yy.o
-Lab 3/lex.yy.c
+Lab_3/y.tab.h
+Lab_3/examples
+Lab_3/command.o
+Lab_3/y.tab.o
+Lab_3/y.tab.c
+Lab_3/shell
+Lab_3/lex.yy.o
+Lab_3/lex.yy.c
 Lab_3/examples
