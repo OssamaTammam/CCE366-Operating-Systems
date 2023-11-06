@@ -28,6 +28,14 @@
 		return GREAT;
 	}
 
+"<"		{
+	return LESS;
+}
+
+">>"	{
+	return DOUBLE_GREAT;
+}
+
 [^ \t\n][^ \t\n]*  {
 		/* Assume that file names have only alpha chars */
 		yylval.string_val = strdup(yytext);
@@ -40,4 +48,3 @@
 	}
 
 %%
-	

@@ -11,13 +11,13 @@
  *
  */
 
-%token	<string_val> WORD
-
-%token 	NOTOKEN GREAT NEWLINE 
-
 %union	{
 		char   *string_val;
 	}
+
+%token	<string_val> WORD
+
+%token 	NOTOKEN GREAT NEWLINE LESS DOUBLE_GREAT
 
 %{
 extern "C" 
