@@ -17,7 +17,7 @@
 
 %token	<string_val> WORD
 
-%token 	NOTOKEN GREAT NEWLINE LESS DOUBLE_GREAT
+%token 	NOTOKEN GREAT NEWLINE LESS DOUBLE_GREAT ANPERSAND
 
 %{
 extern "C" 
@@ -106,6 +106,13 @@ iomodifier_ipt:
 	| /* can be empty */
 	;
 
+background:
+	ANPERSAND {
+		printf("   Yacc: background enabled");
+		Command::_background = 1;
+	}
+	|	
+	;
 %%
 
 void
