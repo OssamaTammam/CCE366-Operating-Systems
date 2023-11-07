@@ -17,7 +17,7 @@
 
 %token	<string_val> WORD
 
-%token 	NOTOKEN GREAT NEWLINE LESS DOUBLE_GREAT ANPERSAND
+%token 	NOTOKEN GREAT NEWLINE LESS DOUBLE_GREAT ANPERSAND PIPE
 
 %{
 extern "C" 
@@ -38,15 +38,16 @@ goal:
 
 commands: 
 	command
-	| commands '|' command 
+	| commands command
 	;
 
-command: simple_command
-        ;
+command: 
+	simple_command
+    ;
 
 simple_command:	
 	command_and_args iomodifier_opt iomodifier_ipt iomodifier_opt_append background NEWLINE {
-		printf("   Yacc: Execute command\n");
+		printf("   Yacc: Execute command\n");		
 		Command::_currentCommand.execute();
 	}
 	| NEWLINE 
@@ -67,16 +68,14 @@ arg_list:
 
 argument:
 	WORD {
-               printf("   Yacc: insert argument \"%s\"\n", $1);
-
-	       Command::_currentSimpleCommand->insertArgument( $1 );\
+           printf("   Yacc: insert argument \"%s\"\n", $1);
+	       Command::_currentSimpleCommand->insertArgument( $1 );
 	}
 	;
 
 command_word:
 	WORD {
-               printf("   Yacc: insert command \"%s\"\n", $1);
-	       
+		   printf("   Yacc: insert command \"%s\"\n", $1);
 	       Command::_currentSimpleCommand = new SimpleCommand();
 	       Command::_currentSimpleCommand->insertArgument( $1 );
 	}
