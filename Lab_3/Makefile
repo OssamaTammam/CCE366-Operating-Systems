@@ -1,4 +1,3 @@
-
 #Use GNU compiler
 cc = gcc -g
 CC = g++ -g
