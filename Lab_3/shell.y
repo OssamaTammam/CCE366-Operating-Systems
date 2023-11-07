@@ -45,7 +45,7 @@ command: simple_command
         ;
 
 simple_command:	
-	command_and_args iomodifier_opt NEWLINE {
+	command_and_args iomodifier_opt iomodifier_ipt NEWLINE {
 		printf("   Yacc: Execute command\n");
 		Command::_currentCommand.execute();
 	}
@@ -89,6 +89,12 @@ iomodifier_opt:
 	}
 	| /* can be empty */ 
 	;
+
+iomodifier_ipt:
+	LESS WORD {
+		printf("   Yacc: insert input \"%s\"\n", $2);
+		Command::_currentCommand._inputFile = $2;
+	}
 
 %%
 
