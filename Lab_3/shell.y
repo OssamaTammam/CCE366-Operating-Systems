@@ -43,6 +43,7 @@ commands:
 
 command: 
 	simple_command
+	| simple_command PIPE simple_command
     ;
 
 simple_command:	
