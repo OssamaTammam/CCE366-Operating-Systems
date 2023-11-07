@@ -38,14 +38,14 @@ goal:
 
 commands: 
 	command
-	| commands command 
+	| commands '|' command 
 	;
 
 command: simple_command
         ;
 
 simple_command:	
-	command_and_args iomodifier_opt iomodifier_ipt iomodifier_opt_append NEWLINE {
+	command_and_args iomodifier_opt iomodifier_ipt iomodifier_opt_append background NEWLINE {
 		printf("   Yacc: Execute command\n");
 		Command::_currentCommand.execute();
 	}
@@ -109,7 +109,7 @@ iomodifier_ipt:
 background:
 	ANPERSAND {
 		printf("   Yacc: background enabled");
-		Command::_background = 1;
+		Command::_currentCommand._background = 1;
 	}
 	|	
 	;
