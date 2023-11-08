@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <dirent.h>
+
 #include "command.h"
 
 SimpleCommand::SimpleCommand()
@@ -47,6 +48,7 @@ Command::Command()
 	_inputFile = 0;
 	_errFile = 0;
 	_background = 0;
+	_append = 0;
 }
 
 void Command::insertSimpleCommand(SimpleCommand *simpleCommand)
@@ -136,7 +138,6 @@ void Command::execute()
 	// Print contents of Command data structure
 	print();
 
-	
 	// Redirect the input/output/error files if necessary.
 	int tmpin = dup(0);
 	int tmpout = dup(1);
@@ -145,67 +146,71 @@ void Command::execute()
 	int fdin;
 	int fdout;
 	int fderr;
-	if(_inputFile){
-		fdin=open(_inputFile,O_RDONLY);
+
+	if (_inputFile)
+	{
+		fdin = open(_inputFile, O_RDONLY);
 	}
-	else{
-		fdin=dup(tmpin);
+	else
+	{
+		fdin = dup(tmpin);
 	}
 
-
-
-	for(int i=0; i<_numberOfSimpleCommands; i++){
-		dup2(fdin,0);
+	for (int i = 0; i < _numberOfSimpleCommands; i++)
+	{
+		dup2(fdin, 0);
 		close(fdin);
-		if(i==_numberOfSimpleCommands-1){
-			if(_outFile){
-				fdout=open(_outFile,O_CREAT|O_WRONLY,0666);
+		if (i == _numberOfSimpleCommands - 1)
+		{
+			if (_outFile)
+			{
+				fdout = open(_outFile, O_CREAT | O_WRONLY, 0666);
 			}
-			else{
-				fdout=dup(tmpout);
+			else
+			{
+				fdout = dup(tmpout);
 			}
-			
 		}
-		else{
+		else
+		{
 			int fdpipe[2];
 			pipe(fdpipe);
-			fdout=fdpipe[1];
-			fdin=fdpipe[0];
+			fdout = fdpipe[1];
+			fdin = fdpipe[0];
 		}
-		dup2(fdout,1);
+		dup2(fdout, 1);
 		close(fdout);
 
-		
-		ret=fork();
-		if(ret==-1){
+		ret = fork();
+		if (ret == -1)
+		{
 			perror("fork");
 			exit(2);
 		}
-		if (ret==0){
-			execvp(_simpleCommands[0]->_arguments[0],_simpleCommands[0]->_arguments);
+		if (ret == 0)
+		{
+			// Execute commands
+			execvp(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
 			perror("execvp");
 			exit(2);
-		
 		}
 	}
-	
 
-	if (!_background) {
-      waitpid(ret, NULL, 0);
-    }
-		// Add execution here
-		// For every simple command fork a new process
-		// Setup i/o redirection
-		// and call exec
+	if (!_background)
+	{
+		waitpid(ret, NULL, 0);
+	}
+	// Add execution here
+	// For every simple command fork a new process
+	// Setup i/o redirection
+	// and call exec
 
-		// Clear to prepare for next command
-		clear();
+	// Clear to prepare for next command
+	clear();
 
 		// Print new prompt
 		prompt();
 		exit(1);
-
-	
 
 }
 
