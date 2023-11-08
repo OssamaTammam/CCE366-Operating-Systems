@@ -112,6 +112,7 @@ void Command::print()
 		{
 			printf("\"%s\" \t", _simpleCommands[i]->_arguments[j]);
 		}
+		printf("\n");
 	}
 
 	printf("\n\n");
@@ -140,8 +141,7 @@ void Command::execute()
 	// Setup i/o redirection
 	// and call exec
 
-	// TODO: implement a switch case that takes in the commands one by one and redirects them using a swich case by command word
-	// redirectCommand();
+	//
 
 	// Clear to prepare for next command
 	clear();
@@ -154,11 +154,6 @@ void redirectCommand(SimpleCommand currentCommand)
 {
 	// ls mkdir etc
 	char *commandWord = currentCommand._arguments[0];
-
-	if (strcmp(commandWord, "ls") == 0)
-	{
-		command_ls();
-	}
 }
 
 // Shell implementation

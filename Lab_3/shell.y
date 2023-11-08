@@ -43,16 +43,20 @@ commands:
 
 command: 
 	simple_command
-	| simple_command PIPE simple_command
     ;
 
 simple_command:	
-	command_and_args iomodifier_opt iomodifier_ipt iomodifier_opt_append background NEWLINE {
+	pipeline iomodifier_opt iomodifier_ipt iomodifier_opt_append background NEWLINE {
 		printf("   Yacc: Execute command\n");		
 		Command::_currentCommand.execute();
 	}
 	| NEWLINE 
 	| error NEWLINE { yyerrok; }
+	;
+
+pipeline:
+	pipeline PIPE command_and_args
+	| command_and_args
 	;
 
 command_and_args:
