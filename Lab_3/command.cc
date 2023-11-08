@@ -146,11 +146,10 @@ void Command::execute()
 	int fdin;
 	int fdout;
 	int fderr;
-	
 
 	if (_inputFile)
 	{
-		if(_append)
+		if (_append)
 		{
 			fdin = open(_inputFile, O_RDONLY | O_APPEND, 0666);
 		}
@@ -158,7 +157,9 @@ void Command::execute()
 		{
 			fdin = open(_inputFile, O_RDONLY, 0666);
 		}
-	}else{
+	}
+	else
+	{
 		fdin = dup(tmpin);
 	}
 
@@ -170,10 +171,12 @@ void Command::execute()
 		{
 			if (_outFile)
 			{
-				if(_append){
+				if (_append)
+				{
 					fdout = open(_outFile, O_WRONLY | O_APPEND | O_CREAT, 0666);
 				}
-				else{
+				else
+				{
 					fdout = open(_outFile, O_WRONLY | O_CREAT, 0666);
 				}
 			}
@@ -219,8 +222,8 @@ void Command::execute()
 	// Clear to prepare for next command
 	clear();
 
-		// Print new prompt
-		prompt();
+	// Print new prompt
+	prompt();
 }
 
 void redirectCommand(SimpleCommand currentCommand)
