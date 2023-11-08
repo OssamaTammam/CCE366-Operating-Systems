@@ -139,86 +139,82 @@ void Command::execute()
 	print();
 
 	// Redirect the input/output/error files if necessary.
-	int tmpin = dup(0);
-	int tmpout = dup(1);
-	int tmperr = dup(2);
-	int ret;
-	int fdin;
-	int fdout;
-	int fderr;
+	int defaultIn = dup(0);
+	int defaultOut = dup(1);
+	int defaultErr = dup(2);
+	int fdIn;
+	int fdOut;
+	int fdErr;
+	int childProcess;
 
 	// TODO: out file prints "myshell>" at the end of the file
 	if (_inputFile)
 	{
-		if (_append)
-		{
-			fdin = open(_inputFile, O_RDONLY | O_APPEND, 0666);
-		}
-		else
-		{
-			fdin = open(_inputFile, O_RDONLY, 0666);
-		}
+		fdIn = open(_inputFile, O_RDONLY, 0666);
 	}
 	else
 	{
-		fdin = dup(tmpin);
+		fdIn = dup(defaultIn);
 	}
 
 	for (int i = 0; i < _numberOfSimpleCommands; i++)
 	{
-		dup2(fdin, 0);
-		close(fdin);
+		dup2(fdIn, 0);
+		close(fdIn);
+
 		if (i == _numberOfSimpleCommands - 1)
 		{
 			if (_outFile)
 			{
 				if (_append)
 				{
-					fdout = open(_outFile, O_WRONLY | O_APPEND | O_CREAT, 0666);
+					fdOut = open(_outFile, O_WRONLY | O_APPEND | O_CREAT, 0666);
 				}
 				else
 				{
-					fdout = open(_outFile, O_WRONLY | O_CREAT, 0666);
+					fdOut = open(_outFile, O_WRONLY | O_CREAT, 0666);
 				}
 			}
 			else
 			{
-				fdout = dup(tmpout);
+				fdOut = dup(defaultOut);
 			}
 		}
 		else
 		{
-			int fdpipe[2];
-			pipe(fdpipe);
-			fdout = fdpipe[1];
-			fdin = fdpipe[0];
+			int fdPipe[2];
+			pipe(fdPipe);
+			fdOut = fdPipe[1];
+			fdIn = fdPipe[0];
 		}
-		dup2(fdout, 1);
-		close(fdout);
 
-		ret = fork();
-		if (ret == -1)
+		dup2(fdOut, 1);
+		close(fdOut);
+
+		childProcess = fork();
+
+		// error creating a child process
+		if (childProcess == -1)
 		{
 			perror("fork");
 			exit(2);
 		}
-		if (ret == 0)
+
+		// check if the process is the parent or the child process forked
+		if (childProcess == 0)
 		{
 			// Execute commands
 			execvp(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
 			perror("execvp");
+
 			exit(2);
 		}
 	}
 
 	if (!_background)
 	{
-		waitpid(ret, NULL, 0);
+		waitpid(childProcess, NULL, 0);
 	}
-	// Add execution here
-	// For every simple command fork a new process
-	// Setup i/o redirection
-	// and call exec
 
 	// Clear to prepare for next command
 	clear();
