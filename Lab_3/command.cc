@@ -48,6 +48,7 @@ Command::Command()
 	_inputFile = 0;
 	_errFile = 0;
 	_background = 0;
+	_append = 0;
 }
 
 void Command::insertSimpleCommand(SimpleCommand *simpleCommand)
@@ -188,6 +189,7 @@ void Command::execute()
 		}
 		if (ret == 0)
 		{
+			// Execute commands
 			execvp(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
 			perror("execvp");
 			exit(2);
@@ -208,7 +210,7 @@ void Command::execute()
 
 	// Print new prompt
 	prompt();
-	exit(1);
+	// exit(1);
 }
 
 void redirectCommand(SimpleCommand currentCommand)

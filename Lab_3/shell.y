@@ -98,6 +98,7 @@ iomodifier_opt_append:
 	DOUBLE_GREAT WORD {
 		printf("   Yacc: insert output in append mode \"%s\"\n", $2);
 		Command::_currentCommand._outFile = $2;
+		Command::_currentCommand._append = 1;
 	}
 	| /* can be empty */
 	;
