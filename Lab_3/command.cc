@@ -152,6 +152,34 @@ void Command::execute()
 	// Print contents of Command data structure
 	print();
 
+	// Ctrl-C signal handler
+	signal(SIGINT, SIG_IGN);
+
+	//EXIT
+	if (strcmp(_simpleCommands[0]->_arguments[0], "exit") == 0)
+	{
+		printf("Good bye!!\n");
+		exit(1);
+	}
+
+	//CHANGE DIRECTORY
+	if (strcmp(_simpleCommands[0]->_arguments[0], "cd") == 0)
+	{
+		if (_simpleCommands[0]->_numberOfArguments == 1)
+		{
+			chdir(getenv("HOME"));
+		}
+		else
+		{
+			chdir(_simpleCommands[0]->_arguments[1]);
+		}
+		clear();
+		prompt();
+		return;
+	}
+	TODO:// Log file
+	
+
 	// Redirect the input/output/error files if necessary.
 	int defaultIn = dup(0);
 	int defaultOut = dup(1);
@@ -160,6 +188,8 @@ void Command::execute()
 	int fdOut;
 	int fdErr;
 	pid_t childProcess;
+	
+
 
 	if (_inputFile)
 	{
