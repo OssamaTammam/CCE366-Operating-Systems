@@ -97,6 +97,7 @@ void Command::clear()
 	_inputFile = 0;
 	_errFile = 0;
 	_background = 0;
+	_append = 0;
 }
 
 void Command::print()
@@ -126,6 +127,19 @@ void Command::print()
 	printf("\n\n");
 }
 
+void catCommand(char **arguments)
+{
+	execlp("cat", "cat", arguments[1], (char *)0);
+}
+
+void redirectSimpleCommand(char *currentCommandWord, char **currentCommandArguments)
+{
+	if (strcmp(currentCommandWord, "cat") == 0)
+	{
+		catCommand(currentCommandArguments);
+	}
+}
+
 void Command::execute()
 {
 	// Don't do anything if there are no simple commands
@@ -145,9 +159,8 @@ void Command::execute()
 	int fdIn;
 	int fdOut;
 	int fdErr;
-	int childProcess;
+	pid_t childProcess;
 
-	// TODO: out file prints "myshell>" at the end of the file
 	if (_inputFile)
 	{
 		fdIn = open(_inputFile, O_RDONLY, 0666);
@@ -215,6 +228,15 @@ void Command::execute()
 		}
 	}
 
+	dup2(defaultIn, 0);
+	dup2(defaultOut, 1);
+	dup2(defaultErr, 2);
+	// close(defaultIn);
+	// close(defaultOut);
+	// close(defaultErr);
+	// close(fdIn);
+	// close(fdOut);
+
 	if (!_background)
 	{
 		waitpid(childProcess, NULL, 0);
@@ -232,15 +254,11 @@ void Command::execute()
 	prompt();
 }
 
-void redirectSimpleCommand(char *currentCommandWord, char **currentCommandArguments)
-{
-}
-
 // Shell implementation
 
 void Command::prompt()
 {
-	printf("myshell>");
+	printf("\nmyshell>");
 	fflush(stdout);
 }
 
