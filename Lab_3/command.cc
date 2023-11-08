@@ -1,13 +1,3 @@
-/*
- * CS354: Shell project
- *
- * Template file.
- * You will need to add more code here to execute the command table.
- *
- * NOTE: You are responsible for fixing any bugs this code may have!
- *
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,7 +5,6 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
-#include <fcntl.h>
 
 #include "command.h"
 
@@ -122,6 +111,7 @@ void Command::print()
 		{
 			printf("\"%s\" \t", _simpleCommands[i]->_arguments[j]);
 		}
+		printf("\n");
 	}
 
 	printf("\n\n");
@@ -214,6 +204,11 @@ void Command::execute()
 		prompt();
 		exit(1);
 
+}
+
+void redirectCommand(SimpleCommand currentCommand)
+{
+	char *commandWord = currentCommand._arguments[0];
 }
 
 // Shell implementation
