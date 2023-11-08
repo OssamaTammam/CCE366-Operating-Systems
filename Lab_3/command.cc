@@ -5,12 +5,8 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
-<<<<<<< HEAD
 #include <fcntl.h>
-=======
 #include <dirent.h>
->>>>>>> b61eebe20ffa8023177003f3dbc376ab58079320
-
 #include "command.h"
 
 SimpleCommand::SimpleCommand()
@@ -208,6 +204,8 @@ void Command::execute()
 		// Print new prompt
 		prompt();
 		exit(1);
+
+	
 
 }
 
