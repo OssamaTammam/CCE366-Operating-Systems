@@ -46,7 +46,7 @@ command:
     ;
 
 simple_command:	
-	pipeline iomodifier_opt iomodifier_ipt iomodifier_opt_append background NEWLINE {
+	pipeline iomodifiers background NEWLINE {
 		printf("   Yacc: Execute command\n");		
 		Command::_currentCommand.execute();
 	}
@@ -86,12 +86,24 @@ command_word:
 	}
 	;
 
+iomodifiers:
+	iomodifiers iomodifier
+	| iomodifier
+	|
+	;
+
+iomodifier:
+	iomodifier_ipt
+	| iomodifier_opt
+	|iomodifier_opt_append
+	;
+
+
 iomodifier_opt:
 	GREAT WORD {
 		printf("   Yacc: insert output \"%s\"\n", $2);
 		Command::_currentCommand._outFile = $2;
 	}
-	| /* can be empty */ 
 	;
 
 iomodifier_opt_append:
@@ -100,7 +112,6 @@ iomodifier_opt_append:
 		Command::_currentCommand._outFile = $2;
 		Command::_currentCommand._append = 1;
 	}
-	| /* can be empty */
 	;
 
 iomodifier_ipt:
@@ -108,7 +119,6 @@ iomodifier_ipt:
 		printf("   Yacc: insert input \"%s\"\n", $2);
 		Command::_currentCommand._inputFile = $2;
 	}
-	| /* can be empty */
 	;
 
 background:
