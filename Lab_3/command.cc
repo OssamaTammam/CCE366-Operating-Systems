@@ -141,8 +141,6 @@ void Command::execute()
 	// Setup i/o redirection
 	// and call exec
 
-	//
-
 	// Clear to prepare for next command
 	clear();
 
@@ -152,7 +150,6 @@ void Command::execute()
 
 void redirectCommand(SimpleCommand currentCommand)
 {
-	// ls mkdir etc
 	char *commandWord = currentCommand._arguments[0];
 }
 
