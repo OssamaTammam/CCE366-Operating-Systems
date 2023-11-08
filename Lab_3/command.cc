@@ -147,6 +147,7 @@ void Command::execute()
 	int fdout;
 	int fderr;
 
+	// TODO: out file prints "myshell>" at the end of the file
 	if (_inputFile)
 	{
 		if (_append)

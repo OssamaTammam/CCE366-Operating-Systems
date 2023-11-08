@@ -1,0 +1,19 @@
+total 320
+drwxrwx--- 3 ossama ossama  4096 Nov  8 22:43 .
+drwxrwxr-x 6 ossama ossama  4096 Nov  8 22:39 ..
+-rwxrwx--- 1 ossama ossama  4816 Nov  8 22:37 command.cc
+-rwxrwx--- 1 ossama ossama   737 Nov  8 22:25 command.h
+-rw-rw-r-- 1 ossama ossama 34048 Nov  8 22:40 command.o
+drwxrwx--- 2 ossama ossama  4096 Nov  7 03:16 examples
+-rw-rw-r-- 1 ossama ossama 45184 Nov  8 22:40 lex.yy.c
+-rw-rw-r-- 1 ossama ossama 44656 Nov  8 22:40 lex.yy.o
+-rwxrwx--- 1 ossama ossama   337 Nov  7 03:10 Makefile
+-rw-rw-r-- 1 ossama ossama     0 Nov  8 22:43 out
+-rwxrwx--- 1 ossama ossama     7 Nov  7 04:46 README.md
+-rwxrwxr-x 1 ossama ossama 69968 Nov  8 22:40 shell
+-rwxrwx--- 1 ossama ossama   561 Nov  7 06:20 shell.l
+-rwxrwx--- 1 ossama ossama  2141 Nov  8 22:26 shell.y
+-rw-rw-r-- 1 ossama ossama 45563 Nov  8 22:40 y.tab.c
+-rw-rw-r-- 1 ossama ossama  3207 Nov  8 22:40 y.tab.h
+-rw-rw-r-- 1 ossama ossama 27984 Nov  8 22:40 y.tab.o
+myshell>
