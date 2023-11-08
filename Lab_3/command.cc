@@ -15,6 +15,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #include "command.h"
 
@@ -144,16 +145,75 @@ void Command::execute()
 	// Print contents of Command data structure
 	print();
 
-	// Add execution here
-	// For every simple command fork a new process
-	// Setup i/o redirection
-	// and call exec
+	
+	// Redirect the input/output/error files if necessary.
+	int tmpin = dup(0);
+	int tmpout = dup(1);
+	int tmperr = dup(2);
+	int ret;
+	int fdin;
+	int fdout;
+	int fderr;
+	if(_inputFile){
+		fdin=open(_inputFile,O_RDONLY);
+	}
+	else{
+		fdin=dup(tmpin);
+	}
 
-	// Clear to prepare for next command
-	clear();
 
-	// Print new prompt
-	prompt();
+
+	for(int i=0; i<_numberOfSimpleCommands; i++){
+		dup2(fdin,0);
+		close(fdin);
+		if(i==_numberOfSimpleCommands-1){
+			if(_outFile){
+				fdout=open(_outFile,O_CREAT|O_WRONLY,0666);
+			}
+			else{
+				fdout=dup(tmpout);
+			}
+			
+		}
+		else{
+			int fdpipe[2];
+			pipe(fdpipe);
+			fdout=fdpipe[1];
+			fdin=fdpipe[0];
+		}
+		dup2(fdout,1);
+		close(fdout);
+
+		
+		ret=fork();
+		if(ret==-1){
+			perror("fork");
+			exit(2);
+		}
+		if (ret==0){
+			execvp(_simpleCommands[0]->_arguments[0],_simpleCommands[0]->_arguments);
+			perror("execvp");
+			exit(2);
+		
+		}
+	}
+	
+
+	if (!_background) {
+      waitpid(ret, NULL, 0);
+    }
+		// Add execution here
+		// For every simple command fork a new process
+		// Setup i/o redirection
+		// and call exec
+
+		// Clear to prepare for next command
+		clear();
+
+		// Print new prompt
+		prompt();
+		exit(1);
+
 }
 
 // Shell implementation
