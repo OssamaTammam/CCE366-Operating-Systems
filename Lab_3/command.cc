@@ -1,13 +1,3 @@
-/*
- * CS354: Shell project
- *
- * Template file.
- * You will need to add more code here to execute the command table.
- *
- * NOTE: You are responsible for fixing any bugs this code may have!
- *
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,6 +5,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
+#include <dirent.h>
 
 #include "command.h"
 
@@ -149,11 +140,25 @@ void Command::execute()
 	// Setup i/o redirection
 	// and call exec
 
+	// TODO: implement a switch case that takes in the commands one by one and redirects them using a swich case by command word
+	// redirectCommand();
+
 	// Clear to prepare for next command
 	clear();
 
 	// Print new prompt
 	prompt();
+}
+
+void redirectCommand(SimpleCommand currentCommand)
+{
+	// ls mkdir etc
+	char *commandWord = currentCommand._arguments[0];
+
+	if (strcmp(commandWord, "ls") == 0)
+	{
+		command_ls();
+	}
 }
 
 // Shell implementation
