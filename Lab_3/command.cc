@@ -204,16 +204,25 @@ void Command::execute()
 		if (childProcess == 0)
 		{
 			// Execute commands
-			execvp(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
-			perror("execvp");
+			int _execution = execvp(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
 
-			exit(2);
+			// if execvp returns -1 the command is not a system call and must be redirected to implementation
+			if (_execution == -1)
+			{
+				// redirect to the commands implementation
+				redirectSimpleCommand(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
+			}
 		}
 	}
 
 	if (!_background)
 	{
 		waitpid(childProcess, NULL, 0);
+	}
+
+	if (childProcess == 0)
+	{
+		exit(2);
 	}
 
 	// Clear to prepare for next command
@@ -223,9 +232,8 @@ void Command::execute()
 	prompt();
 }
 
-void redirectCommand(SimpleCommand currentCommand)
+void redirectSimpleCommand(char *currentCommandWord, char **currentCommandArguments)
 {
-	char *commandWord = currentCommand._arguments[0];
 }
 
 // Shell implementation
