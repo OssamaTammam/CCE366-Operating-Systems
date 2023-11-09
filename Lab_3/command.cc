@@ -155,96 +155,70 @@ void Command::execute()
 	// Redirect the input/output/error files if necessary.
 	int defaultIn = dup(0);
 	int defaultOut = dup(1);
-	int defaultErr = dup(2);
-	int fdIn;
-	int fdOut;
-	int fdErr;
-	pid_t childProcess;
+	// int defaultErr = dup(2);
+	int fdIn = dup(defaultIn);
+	int fdOut = dup(defaultOut);
+	// int fdErr;
 
-	if (_inputFile)
-	{
-		fdIn = open(_inputFile, O_RDONLY, 0666);
-	}
-	else
-	{
-		fdIn = dup(defaultIn);
-	}
+	pid_t childProcess;
 
 	for (int i = 0; i < _numberOfSimpleCommands; i++)
 	{
-		dup2(fdIn, 0);
-		close(fdIn);
-
-		if (i == _numberOfSimpleCommands - 1)
-		{
-			if (_outFile)
-			{
-				if (_append)
-				{
-					fdOut = open(_outFile, O_WRONLY | O_APPEND | O_CREAT, 0666);
-				}
-				else
-				{
-					fdOut = open(_outFile, O_WRONLY | O_CREAT, 0666);
-				}
-			}
-			else
-			{
-				fdOut = dup(defaultOut);
-			}
-		}
-		else
-		{
-			int fdPipe[2];
-			pipe(fdPipe);
-			fdOut = fdPipe[1];
-			fdIn = fdPipe[0];
-		}
-
-		dup2(fdOut, 1);
-		close(fdOut);
+		int fdPipe[2];
+		pipe(fdPipe);
 
 		childProcess = fork();
 
-		// error creating a child process
-		if (childProcess == -1)
-		{
-			perror("fork");
-			exit(2);
-		}
-
-		// check if the process is the parent or the child process forked
 		if (childProcess == 0)
 		{
-			// Execute commands
-			int _execution = execvp(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
+			close(fdPipe[1]);
 
-			// if execvp returns -1 the command is not a system call and must be redirected to implementation
-			if (_execution == -1)
+			// Set the input file descriptor to the read end of the pipe
+			dup2(fdPipe[0], 0);
+			close(fdPipe[0]);
+
+			if (i == _numberOfSimpleCommands - 1)
 			{
-				// redirect to the commands implementation
-				redirectSimpleCommand(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
+				int fdOut;
+
+				if (_outFile)
+				{
+					if (_append)
+					{
+						fdOut = open(_outFile, O_WRONLY | O_APPEND | O_CREAT, 0666);
+					}
+					else
+					{
+						fdOut = open(_outFile, O_WRONLY | O_CREAT, 0666);
+					}
+				}
+				else
+				{
+					fdOut = dup(defaultOut);
+				}
+
+				dup2(fdOut, 1);
+				close(fdOut);
 			}
+
+			execvp(_simpleCommands[i]->_arguments[0], _simpleCommands[i]->_arguments);
+			perror("execvp");
+			// exit(2);
 		}
+
+		// Close the read end of the pipe
+		close(fdPipe[0]);
+
+		// Set the input file descriptor to the write end of the pipe
+		dup2(fdPipe[1], 1);
+		close(fdPipe[1]);
 	}
 
 	dup2(defaultIn, 0);
-	dup2(defaultOut, 1);
-	dup2(defaultErr, 2);
-	// close(defaultIn);
-	// close(defaultOut);
-	// close(defaultErr);
-	// close(fdIn);
-	// close(fdOut);
 
 	if (!_background)
 	{
 		waitpid(childProcess, NULL, 0);
-	}
-
-	if (childProcess == 0)
-	{
-		exit(2);
 	}
 
 	// Clear to prepare for next command
