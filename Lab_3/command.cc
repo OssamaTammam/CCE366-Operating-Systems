@@ -180,7 +180,32 @@ void Command::execute()
 		return;
 	}
 
-	// Log file
+	// ignore SIGINT
+	signal(SIGINT, SIG_IGN);
+
+	// EXIT
+	if (strcmp(_simpleCommands[0]->_arguments[0], "exit") == 0)
+	{
+		printf("Good bye!!\n");
+		exit(1);
+	}
+
+	// CHANGE DIRECTORY
+	if (strcmp(_simpleCommands[0]->_arguments[0], "cd") == 0)
+	{
+		if (_simpleCommands[0]->_numberOfArguments == 1)
+		{
+			chdir(getenv("HOME"));
+		}
+		else
+		{
+			chdir(_simpleCommands[0]->_arguments[1]);
+		}
+		clear();
+		prompt();
+		return;
+	}
+TODO: // Log file
 
 	// Print contents of Command data structure
 
