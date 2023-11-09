@@ -1,16 +1,3 @@
-
-/*
- * CS-413 Spring 98
- * shell.y: parser for shell
- *
- * This parser compiles the following grammar:
- *
- *	cmd [arg]* [> filename]
- *
- * you must extend it to understand the complete shell grammar
- *
- */
-
 %union	{
 		char   *string_val;
 	}
@@ -95,7 +82,7 @@ iomodifiers:
 iomodifier:
 	iomodifier_ipt
 	| iomodifier_opt
-	|iomodifier_opt_append
+	| iomodifier_opt_append
 	;
 
 
