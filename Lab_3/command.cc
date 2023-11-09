@@ -127,7 +127,7 @@ void Command::print()
 	printf("\n\n");
 }
 
-void redirectNonSystemCommands(SimpleCommand *currentSimpleCommand)
+void exitCommand(SimpleCommand *currentSimpleCommand)
 {
 	// EXIT
 	if (strcmp(currentSimpleCommand->_arguments[0], "exit") == 0)
@@ -135,6 +135,8 @@ void redirectNonSystemCommands(SimpleCommand *currentSimpleCommand)
 		printf("Good bye!!\n");
 		exit(1);
 	}
+
+	return;
 }
 
 void Command::execute()
@@ -184,6 +186,9 @@ void Command::execute()
 
 	for (int i = 0; i < _numberOfSimpleCommands; i++)
 	{
+		// checks if exit command before forking a child process
+		exitCommand(_simpleCommands[i]);
+
 		int fdPipe[2];
 		pipe(fdPipe);
 
