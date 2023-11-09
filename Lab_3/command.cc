@@ -136,9 +136,7 @@ void Command::execute()
 		return;
 	}
 
-	// ignore SIGINT
-	signal(SIGINT, SIG_IGN);
-
+	
 	//EXIT
 	if (strcmp(_simpleCommands[0]->_arguments[0], "exit") == 0)
 	{
@@ -153,13 +151,21 @@ void Command::execute()
 		{
 			chdir(getenv("HOME"));
 		}
+		else if(_simpleCommands[0]->_numberOfArguments == 2)
+		{
+			if (chdir(_simpleCommands[0]->_arguments[1]) == -1)
+			{
+				perror("chdir");
+			}
+		}
 		else
 		{
-			chdir(_simpleCommands[0]->_arguments[1]);
+			printf("cd: too many arguments\n");
 		}
+		
 		clear();
 		prompt();
-		return;
+		return ;
 	}
 	TODO:// Log file
 
@@ -256,6 +262,9 @@ int yyparse(void);
 
 int main()
 {
+	// ignore SIGINT
+	signal(SIGINT, SIG_IGN);
+
 	Command::_currentCommand.prompt();
 	yyparse();
 	return 0;
