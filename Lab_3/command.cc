@@ -149,10 +149,7 @@ void Command::execute()
 		return;
 	}
 
-	// Print contents of Command data structure
-	print();
-
-	// Ctrl-C signal handler
+	// ignore SIGINT
 	signal(SIGINT, SIG_IGN);
 
 	//EXIT
@@ -178,7 +175,10 @@ void Command::execute()
 		return;
 	}
 	TODO:// Log file
-	
+
+	// Print contents of Command data structure
+
+	print();
 
 	// Redirect the input/output/error files if necessary.
 	int defaultIn = dup(0);
@@ -247,13 +247,13 @@ void Command::execute()
 		if (childProcess == 0)
 		{
 			// Execute commands
-			int _execution = execvp(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
+			int _execution = execvp(_simpleCommands[i]->_arguments[0], _simpleCommands[i]->_arguments);
 
 			// if execvp returns -1 the command is not a system call and must be redirected to implementation
 			if (_execution == -1)
 			{
 				// redirect to the commands implementation
-				redirectSimpleCommand(_simpleCommands[0]->_arguments[0], _simpleCommands[0]->_arguments);
+				redirectSimpleCommand(_simpleCommands[i]->_arguments[0], _simpleCommands[i]->_arguments);
 			}
 		}
 	}
@@ -261,11 +261,11 @@ void Command::execute()
 	dup2(defaultIn, 0);
 	dup2(defaultOut, 1);
 	dup2(defaultErr, 2);
-	// close(defaultIn);
-	// close(defaultOut);
-	// close(defaultErr);
-	// close(fdIn);
-	// close(fdOut);
+	close(defaultIn);
+	close(defaultOut);
+	close(defaultErr);
+	close(fdIn);
+	close(fdOut);
 
 	if (!_background)
 	{
