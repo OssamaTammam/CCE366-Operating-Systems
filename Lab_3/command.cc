@@ -127,19 +127,6 @@ void Command::print()
 	printf("\n\n");
 }
 
-void catCommand(char **arguments)
-{
-	execlp("cat", "cat", arguments[1], (char *)0);
-}
-
-void redirectSimpleCommand(char *currentCommandWord, char **currentCommandArguments)
-{
-	if (strcmp(currentCommandWord, "cat") == 0)
-	{
-		catCommand(currentCommandArguments);
-	}
-}
-
 void Command::execute()
 {
 	// Don't do anything if there are no simple commands
@@ -162,6 +149,11 @@ void Command::execute()
 
 	pid_t childProcess;
 
+	if (_inputFile)
+	{
+		fdIn = open(_inputFile, O_RDONLY, 0666);
+	}
+
 	for (int i = 0; i < _numberOfSimpleCommands; i++)
 	{
 		int fdPipe[2];
@@ -171,16 +163,11 @@ void Command::execute()
 
 		if (childProcess == 0)
 		{
-			close(fdPipe[1]);
-
-			// Set the input file descriptor to the read end of the pipe
-			dup2(fdPipe[0], 0);
-			close(fdPipe[0]);
+			dup2(fdIn, 0);
+			close(fdIn);
 
 			if (i == _numberOfSimpleCommands - 1)
 			{
-				int fdOut;
-
 				if (_outFile)
 				{
 					if (_append)
@@ -192,18 +179,13 @@ void Command::execute()
 						fdOut = open(_outFile, O_WRONLY | O_CREAT, 0666);
 					}
 				}
-				else
-				{
-					fdOut = dup(defaultOut);
-				}
-
 				dup2(fdOut, 1);
 				close(fdOut);
 			}
 
 			execvp(_simpleCommands[i]->_arguments[0], _simpleCommands[i]->_arguments);
 			perror("execvp");
-			// exit(2);
+			exit(2);
 		}
 
 		// Close the read end of the pipe
@@ -215,6 +197,7 @@ void Command::execute()
 	}
 
 	dup2(defaultIn, 0);
+	dup2(defaultOut, 1);
 
 	if (!_background)
 	{

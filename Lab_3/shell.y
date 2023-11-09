@@ -82,7 +82,7 @@ iomodifiers:
 iomodifier:
 	iomodifier_ipt
 	| iomodifier_opt
-	|iomodifier_opt_append
+	| iomodifier_opt_append
 	;
 
 
