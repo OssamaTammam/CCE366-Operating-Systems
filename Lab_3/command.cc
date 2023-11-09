@@ -10,6 +10,8 @@
 
 #include "command.h"
 
+char *currentDirectory = get_current_dir_name();
+
 SimpleCommand::SimpleCommand()
 {
 	// Creat available space for 5 arguments
@@ -139,8 +141,38 @@ void exitCommand(SimpleCommand *currentSimpleCommand)
 	return;
 }
 
+// void cdCommand(SimpleCommand *currentSimpleCommand){
+// 	// CHANGE DIRECTORY
+// 	if (strcmp(_simpleCommands[0]->_arguments[0], "cd") == 0)
+// 	{
+// 		if (_simpleCommands[0]->_numberOfArguments == 1)
+// 		{
+// 			chdir(getenv("HOME"));
+// 		}
+// 		else
+// 		{
+// 			chdir(_simpleCommands[0]->_arguments[1]);
+// 		}
+// 		// clear();
+// 		// prompt();
+// 		return;
+// 	}
+
+// 	return;
+// }
+
 void Command::execute()
 {
+	// // for checking commands
+	// for (int i = 0; i < _numberOfSimpleCommands; i++)
+	// {
+	// 	for (int j = 0; j < _simpleCommands[i]->_numberOfArguments; j++)
+	// 	{
+	// 		printf("%s ", _simpleCommands[i]->_arguments[j]);
+	// 	}
+	// 	printf("\n");
+	// }
+
 	// Don't do anything if there are no simple commands
 	if (_numberOfSimpleCommands == 0)
 	{
@@ -148,21 +180,6 @@ void Command::execute()
 		return;
 	}
 
-	// CHANGE DIRECTORY
-	if (strcmp(_simpleCommands[0]->_arguments[0], "cd") == 0)
-	{
-		if (_simpleCommands[0]->_numberOfArguments == 1)
-		{
-			chdir(getenv("HOME"));
-		}
-		else
-		{
-			chdir(_simpleCommands[0]->_arguments[1]);
-		}
-		clear();
-		prompt();
-		return;
-	}
 	// Log file
 
 	// Print contents of Command data structure
@@ -248,7 +265,7 @@ void Command::execute()
 
 void Command::prompt()
 {
-	printf("\nmyshell>");
+	printf("\n%s>", currentDirectory);
 	fflush(stdout);
 }
 
