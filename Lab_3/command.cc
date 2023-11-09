@@ -127,6 +127,16 @@ void Command::print()
 	printf("\n\n");
 }
 
+void redirectNonSystemCommands(SimpleCommand *currentSimpleCommand)
+{
+	// EXIT
+	if (strcmp(currentSimpleCommand->_arguments[0], "exit") == 0)
+	{
+		printf("Good bye!!\n");
+		exit(1);
+	}
+}
+
 void Command::execute()
 {
 	// Don't do anything if there are no simple commands
@@ -136,17 +146,7 @@ void Command::execute()
 		return;
 	}
 
-	// ignore SIGINT
-	signal(SIGINT, SIG_IGN);
-
-	//EXIT
-	if (strcmp(_simpleCommands[0]->_arguments[0], "exit") == 0)
-	{
-		printf("Good bye!!\n");
-		exit(1);
-	}
-
-	//CHANGE DIRECTORY
+	// CHANGE DIRECTORY
 	if (strcmp(_simpleCommands[0]->_arguments[0], "cd") == 0)
 	{
 		if (_simpleCommands[0]->_numberOfArguments == 1)
@@ -161,7 +161,7 @@ void Command::execute()
 		prompt();
 		return;
 	}
-	TODO:// Log file
+	// Log file
 
 	// Print contents of Command data structure
 
@@ -176,8 +176,6 @@ void Command::execute()
 	// int fdErr;
 
 	pid_t childProcess;
-	
-
 
 	if (_inputFile)
 	{
@@ -256,6 +254,9 @@ int yyparse(void);
 
 int main()
 {
+	// Disable CTRL+C in terminal
+	signal(SIGINT, SIG_IGN);
+
 	Command::_currentCommand.prompt();
 	yyparse();
 	return 0;
