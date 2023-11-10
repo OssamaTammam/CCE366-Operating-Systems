@@ -44,8 +44,8 @@
 	return PIPE;
 }
 
-[^ \t\n][^ \t\n]*  {
-		/* Assume that file names have only alpha chars */
+[^ \t\n><&|]+  {
+		/* Allow any character in arguments except special characters */
 		yylval.string_val = strdup(yytext);
 		return WORD;
 	}
