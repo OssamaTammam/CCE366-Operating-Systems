@@ -6,6 +6,7 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "command.h"
 
@@ -128,12 +129,50 @@ void Command::print()
 	printf("\n\n");
 }
 
+void logMessage(char *message)
+{
+	FILE *logFile = fopen("log.txt", "a");
+
+	time_t rawTime;
+	time(&rawTime);
+	char *TIMESTAMP = ctime(&rawTime);
+
+	fprintf(logFile, "%s- %s\n\n", TIMESTAMP, message);
+
+	fclose(logFile);
+}
+
+void handleSigchld(int signum)
+{
+	int status;
+	pid_t childPid;
+	char message[100];
+
+	// Reap all terminated child processes
+	while ((childPid = waitpid(-1, &status, WNOHANG)) > 0)
+	{
+		if (WIFEXITED(status))
+		{
+			sprintf(message, "Child process %d exited with status %d\n", childPid, WEXITSTATUS(status));
+		}
+		else if (WIFSIGNALED(status))
+		{
+			sprintf(message, "Child process %d terminated by signal %d\n", childPid, WTERMSIG(status));
+		}
+
+		logMessage(message);
+	}
+}
+
 void exitCommand(SimpleCommand *currentSimpleCommand)
 {
 	// EXIT
 	if (strcmp(currentSimpleCommand->_arguments[0], "exit") == 0)
 	{
+		char *message = "Exit shell";
+
 		printf("Good bye!!\n");
+		logMessage(message);
 		exit(1);
 	}
 
@@ -150,9 +189,16 @@ int Command::cdCommand(int i)
 		{
 			chdir(getenv("HOME"));
 		}
+		else if (_simpleCommands[i]->_numberOfArguments == 2)
+		{
+			if (chdir(_simpleCommands[i]->_arguments[1]) == -1)
+			{
+				printf("cd: %s: No such file or directory\n", _simpleCommands[i]->_arguments[1]);
+			}
+		}
 		else
 		{
-			chdir(_simpleCommands[i]->_arguments[1]);
+			printf("cd: Too many arguments\n");
 		}
 
 		char cwd[4096];
@@ -163,8 +209,6 @@ int Command::cdCommand(int i)
 			currentDirectory = cwd;
 		}
 
-		// clear();
-		// prompt();
 		return 1;
 	}
 
@@ -173,16 +217,6 @@ int Command::cdCommand(int i)
 
 void Command::execute()
 {
-	// // for checking commands
-	// for (int i = 0; i < _numberOfSimpleCommands; i++)
-	// {
-	// 	for (int j = 0; j < _simpleCommands[i]->_numberOfArguments; j++)
-	// 	{
-	// 		printf("%s ", _simpleCommands[i]->_arguments[j]);
-	// 	}
-	// 	printf("\n");
-	// }
-
 	// Don't do anything if there are no simple commands
 	if (_numberOfSimpleCommands == 0)
 	{
@@ -209,25 +243,67 @@ void Command::execute()
 		fdIn = open(_inputFile, O_RDONLY, 0666);
 	}
 
+	int fdPipe[_numberOfSimpleCommands - 1][2];
+	for (int i = 0; i < _numberOfSimpleCommands - 1; i++)
+	{
+		pipe(fdPipe[i]);
+	}
+
 	for (int i = 0; i < _numberOfSimpleCommands; i++)
 	{
-		// checks if exit command before forking a child process
+		// checks if exit or cd command before forking a child process
 		exitCommand(_simpleCommands[i]);
 		if (cdCommand(i))
 		{
 			continue;
 		}
 
-		int fdPipe[2];
-		pipe(fdPipe);
+		// Handle input redirection
+		if (i == 0 && _inputFile)
+		{
+			int fdIn = open(_inputFile, O_RDONLY, 0666);
+			dup2(fdIn, 0);
+			close(fdIn);
+		}
+
+		// Handle output redirection
+		if (i == _numberOfSimpleCommands - 1 && _outFile)
+		{
+			int fdOut;
+			if (_append)
+			{
+				fdOut = open(_outFile, O_WRONLY | O_APPEND | O_CREAT, 0666);
+			}
+			else
+			{
+				fdOut = open(_outFile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+			}
+			dup2(fdOut, 1);
+			close(fdOut);
+		}
+
+		if (i > 0)
+		{
+			// Close the read end of the previous pipe
+			close(fdPipe[i - 1][0]);
+			// Set the input file descriptor to the write end of the pipe
+			dup2(fdPipe[i - 1][1], 1);
+			close(fdPipe[i - 1][1]);
+		}
+
+		if (i < _numberOfSimpleCommands - 1)
+		{
+			// Close the write end of the current pipe
+			close(fdPipe[i][1]);
+			// Set the input file descriptor to the read end of the pipe
+			dup2(fdPipe[i][0], 0);
+			close(fdPipe[i][0]);
+		}
 
 		childProcess = fork();
 
 		if (childProcess == 0)
 		{
-			dup2(fdIn, 0);
-			close(fdIn);
-
 			if (i == _numberOfSimpleCommands - 1)
 			{
 				if (_outFile)
@@ -241,25 +317,21 @@ void Command::execute()
 						fdOut = open(_outFile, O_WRONLY | O_CREAT, 0666);
 					}
 				}
-				dup2(fdOut, 1);
-				close(fdOut);
 			}
 
 			execvp(_simpleCommands[i]->_arguments[0], _simpleCommands[i]->_arguments);
-			perror("execvp");
-			exit(2);
 		}
-
-		// Close the read end of the pipe
-		close(fdPipe[0]);
-
-		// Set the input file descriptor to the write end of the pipe
-		dup2(fdPipe[1], 1);
-		close(fdPipe[1]);
 	}
 
+	// Restore default input/output
 	dup2(defaultIn, 0);
 	dup2(defaultOut, 1);
+
+	for (int i = 0; i < _numberOfSimpleCommands - 1; i++)
+	{
+		close(fdPipe[i][0]);
+		close(fdPipe[i][1]);
+	}
 
 	if (!_background)
 	{
@@ -290,6 +362,8 @@ int main()
 {
 	// Disable CTRL+C in terminal
 	signal(SIGINT, SIG_IGN);
+	// For logging child termination
+	signal(SIGCHLD, handleSigchld);
 
 	Command::_currentCommand.prompt();
 	yyparse();
