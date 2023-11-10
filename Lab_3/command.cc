@@ -150,9 +150,16 @@ int Command::cdCommand(int i)
 		{
 			chdir(getenv("HOME"));
 		}
+		else if (_simpleCommands[i]->_numberOfArguments == 2)
+		{
+			if (chdir(_simpleCommands[i]->_arguments[1]) == -1)
+			{
+				printf("cd: %s: No such file or directory\n", _simpleCommands[i]->_arguments[1]);
+			}
+		}
 		else
 		{
-			chdir(_simpleCommands[i]->_arguments[1]);
+			printf("cd: Too many arguments\n");
 		}
 
 		char cwd[4096];
