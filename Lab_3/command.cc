@@ -6,9 +6,10 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <dirent.h>
 
 #include "command.h"
+
+char *currentDirectory = get_current_dir_name();
 
 SimpleCommand::SimpleCommand()
 {
@@ -127,8 +128,61 @@ void Command::print()
 	printf("\n\n");
 }
 
+void exitCommand(SimpleCommand *currentSimpleCommand)
+{
+	// EXIT
+	if (strcmp(currentSimpleCommand->_arguments[0], "exit") == 0)
+	{
+		printf("Good bye!!\n");
+		exit(1);
+	}
+
+	return;
+}
+
+int Command::cdCommand(int i)
+{
+
+	// CHANGE DIRECTORY
+	if (strcmp(_simpleCommands[i]->_arguments[0], "cd") == 0)
+	{
+		if (_simpleCommands[i]->_numberOfArguments == 1)
+		{
+			chdir(getenv("HOME"));
+		}
+		else
+		{
+			chdir(_simpleCommands[i]->_arguments[1]);
+		}
+
+		char cwd[4096];
+
+		// Get the current working directory
+		if (getcwd(cwd, sizeof(cwd)) != NULL)
+		{
+			currentDirectory = cwd;
+		}
+
+		// clear();
+		// prompt();
+		return 1;
+	}
+
+	return 0;
+}
+
 void Command::execute()
 {
+	// // for checking commands
+	// for (int i = 0; i < _numberOfSimpleCommands; i++)
+	// {
+	// 	for (int j = 0; j < _simpleCommands[i]->_numberOfArguments; j++)
+	// 	{
+	// 		printf("%s ", _simpleCommands[i]->_arguments[j]);
+	// 	}
+	// 	printf("\n");
+	// }
+
 	// Don't do anything if there are no simple commands
 	if (_numberOfSimpleCommands == 0)
 	{
@@ -137,6 +191,7 @@ void Command::execute()
 	}
 
 	// Print contents of Command data structure
+
 	print();
 
 	// Redirect the input/output/error files if necessary.
@@ -156,6 +211,13 @@ void Command::execute()
 
 	for (int i = 0; i < _numberOfSimpleCommands; i++)
 	{
+		// checks if exit command before forking a child process
+		exitCommand(_simpleCommands[i]);
+		if (cdCommand(i))
+		{
+			continue;
+		}
+
 		int fdPipe[2];
 		pipe(fdPipe);
 
@@ -215,7 +277,7 @@ void Command::execute()
 
 void Command::prompt()
 {
-	printf("\nmyshell>");
+	printf("\n%s>", currentDirectory);
 	fflush(stdout);
 }
 
@@ -226,6 +288,9 @@ int yyparse(void);
 
 int main()
 {
+	// Disable CTRL+C in terminal
+	signal(SIGINT, SIG_IGN);
+
 	Command::_currentCommand.prompt();
 	yyparse();
 	return 0;

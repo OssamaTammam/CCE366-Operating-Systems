@@ -30,6 +30,7 @@ struct Command
 	void print();
 	void execute();
 	void clear();
+	int cdCommand(int i);
 
 	Command();
 	void insertSimpleCommand(SimpleCommand *simpleCommand);
