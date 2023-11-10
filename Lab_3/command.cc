@@ -170,8 +170,6 @@ int Command::cdCommand(int i)
 			currentDirectory = cwd;
 		}
 
-		// clear();
-		// prompt();
 		return 1;
 	}
 
@@ -180,16 +178,6 @@ int Command::cdCommand(int i)
 
 void Command::execute()
 {
-	// // for checking commands
-	// for (int i = 0; i < _numberOfSimpleCommands; i++)
-	// {
-	// 	for (int j = 0; j < _simpleCommands[i]->_numberOfArguments; j++)
-	// 	{
-	// 		printf("%s ", _simpleCommands[i]->_arguments[j]);
-	// 	}
-	// 	printf("\n");
-	// }
-
 	// Don't do anything if there are no simple commands
 	if (_numberOfSimpleCommands == 0)
 	{
@@ -218,7 +206,7 @@ void Command::execute()
 
 	for (int i = 0; i < _numberOfSimpleCommands; i++)
 	{
-		// checks if exit command before forking a child process
+		// checks if exit or cd command before forking a child process
 		exitCommand(_simpleCommands[i]);
 		if (cdCommand(i))
 		{
