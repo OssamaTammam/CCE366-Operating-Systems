@@ -6,6 +6,7 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "command.h"
 
@@ -128,12 +129,50 @@ void Command::print()
 	printf("\n\n");
 }
 
+void logMessage(char *message)
+{
+	FILE *logFile = fopen("log.txt", "a");
+
+	time_t rawTime;
+	time(&rawTime);
+	char *TIMESTAMP = ctime(&rawTime);
+
+	fprintf(logFile, "%s- %s\n\n", TIMESTAMP, message);
+
+	fclose(logFile);
+}
+
+void handleSigchld(int signum)
+{
+	int status;
+	pid_t childPid;
+	char message[100];
+
+	// Reap all terminated child processes
+	while ((childPid = waitpid(-1, &status, WNOHANG)) > 0)
+	{
+		if (WIFEXITED(status))
+		{
+			sprintf(message, "Child process %d exited with status %d\n", childPid, WEXITSTATUS(status));
+		}
+		else if (WIFSIGNALED(status))
+		{
+			sprintf(message, "Child process %d terminated by signal %d\n", childPid, WTERMSIG(status));
+		}
+
+		logMessage(message);
+	}
+}
+
 void exitCommand(SimpleCommand *currentSimpleCommand)
 {
 	// EXIT
 	if (strcmp(currentSimpleCommand->_arguments[0], "exit") == 0)
 	{
+		char *message = "Exit shell";
+
 		printf("Good bye!!\n");
+		logMessage(message);
 		exit(1);
 	}
 
@@ -265,7 +304,6 @@ void Command::execute()
 
 		if (childProcess == 0)
 		{
-
 			if (i == _numberOfSimpleCommands - 1)
 			{
 				if (_outFile)
@@ -282,8 +320,6 @@ void Command::execute()
 			}
 
 			execvp(_simpleCommands[i]->_arguments[0], _simpleCommands[i]->_arguments);
-			perror("execvp");
-			exit(2);
 		}
 	}
 
@@ -326,6 +362,8 @@ int main()
 {
 	// Disable CTRL+C in terminal
 	signal(SIGINT, SIG_IGN);
+	// For logging child termination
+	signal(SIGCHLD, handleSigchld);
 
 	Command::_currentCommand.prompt();
 	yyparse();
