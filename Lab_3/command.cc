@@ -6,7 +6,6 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <dirent.h>
 
 #include "command.h"
 
@@ -141,25 +140,36 @@ void exitCommand(SimpleCommand *currentSimpleCommand)
 	return;
 }
 
-// void cdCommand(SimpleCommand *currentSimpleCommand){
-// 	// CHANGE DIRECTORY
-// 	if (strcmp(_simpleCommands[0]->_arguments[0], "cd") == 0)
-// 	{
-// 		if (_simpleCommands[0]->_numberOfArguments == 1)
-// 		{
-// 			chdir(getenv("HOME"));
-// 		}
-// 		else
-// 		{
-// 			chdir(_simpleCommands[0]->_arguments[1]);
-// 		}
-// 		// clear();
-// 		// prompt();
-// 		return;
-// 	}
+int Command::cdCommand(int i)
+{
 
-// 	return;
-// }
+	// CHANGE DIRECTORY
+	if (strcmp(_simpleCommands[i]->_arguments[0], "cd") == 0)
+	{
+		if (_simpleCommands[i]->_numberOfArguments == 1)
+		{
+			chdir(getenv("HOME"));
+		}
+		else
+		{
+			chdir(_simpleCommands[i]->_arguments[1]);
+		}
+
+		char cwd[4096];
+
+		// Get the current working directory
+		if (getcwd(cwd, sizeof(cwd)) != NULL)
+		{
+			currentDirectory = cwd;
+		}
+
+		// clear();
+		// prompt();
+		return 1;
+	}
+
+	return 0;
+}
 
 void Command::execute()
 {
@@ -179,33 +189,6 @@ void Command::execute()
 		prompt();
 		return;
 	}
-
-	// ignore SIGINT
-	signal(SIGINT, SIG_IGN);
-
-	// EXIT
-	if (strcmp(_simpleCommands[0]->_arguments[0], "exit") == 0)
-	{
-		printf("Good bye!!\n");
-		exit(1);
-	}
-
-	// CHANGE DIRECTORY
-	if (strcmp(_simpleCommands[0]->_arguments[0], "cd") == 0)
-	{
-		if (_simpleCommands[0]->_numberOfArguments == 1)
-		{
-			chdir(getenv("HOME"));
-		}
-		else
-		{
-			chdir(_simpleCommands[0]->_arguments[1]);
-		}
-		clear();
-		prompt();
-		return;
-	}
-TODO: // Log file
 
 	// Print contents of Command data structure
 
@@ -230,6 +213,10 @@ TODO: // Log file
 	{
 		// checks if exit command before forking a child process
 		exitCommand(_simpleCommands[i]);
+		if (cdCommand(i))
+		{
+			continue;
+		}
 
 		int fdPipe[2];
 		pipe(fdPipe);
