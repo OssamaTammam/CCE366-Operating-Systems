@@ -225,7 +225,6 @@ void Command::execute()
 	}
 
 	// Print contents of Command data structure
-
 	print();
 
 	// Redirect the input/output/error files if necessary.
@@ -320,6 +319,7 @@ void Command::execute()
 			}
 
 			execvp(_simpleCommands[i]->_arguments[0], _simpleCommands[i]->_arguments);
+			exit(2);
 		}
 	}
 
@@ -346,7 +346,6 @@ void Command::execute()
 }
 
 // Shell implementation
-
 void Command::prompt()
 {
 	printf("\n%s>", currentDirectory);
