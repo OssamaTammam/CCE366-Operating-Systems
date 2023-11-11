@@ -144,24 +144,7 @@ void logMessage(char *message)
 
 void handleSigchld(int signum)
 {
-	int status;
-	pid_t childPid;
-	char message[100];
-
-	// Reap all terminated child processes
-	while ((childPid = waitpid(-1, &status, WNOHANG)) > 0)
-	{
-		if (WIFEXITED(status))
-		{
-			sprintf(message, "Child process %d exited with status %d\n", childPid, WEXITSTATUS(status));
-		}
-		else if (WIFSIGNALED(status))
-		{
-			sprintf(message, "Child process %d terminated by signal %d\n", childPid, WTERMSIG(status));
-		}
-
-		logMessage(message);
-	}
+	logMessage("Child process terminated");
 }
 
 void exitCommand(SimpleCommand *currentSimpleCommand)
@@ -169,10 +152,8 @@ void exitCommand(SimpleCommand *currentSimpleCommand)
 	// EXIT
 	if (strcmp(currentSimpleCommand->_arguments[0], "exit") == 0)
 	{
-		char *message = "Exit shell";
-
 		printf("Good bye!!\n");
-		logMessage(message);
+		logMessage("Exit shell");
 		exit(1);
 	}
 
