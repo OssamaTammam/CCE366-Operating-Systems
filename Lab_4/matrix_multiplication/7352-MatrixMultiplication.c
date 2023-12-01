@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <time.h>
 
 typedef struct
 {
@@ -8,6 +9,15 @@ typedef struct
     int cols;
     int **data; // Double pointer so each pointer points to a pointer that points to an array
 } Matrix;
+
+typedef struct
+{
+    Matrix *matrixA;
+    Matrix *matrixB;
+    Matrix *matrixResult;
+    int currRow;
+    int currCol;
+} ThreadArgs;
 
 // Read the matrices from the file and return them
 void readMatrices(Matrix *matrixA, Matrix *matrixB, int testCase)
@@ -34,6 +44,7 @@ void readMatrices(Matrix *matrixA, Matrix *matrixB, int testCase)
         matrixA->data[i] = (int *)malloc(colsA * sizeof(int));
     }
 
+    // Read matrix elements from file
     for (int i = 0; i < matrixA->rows; i++)
     {
         for (int j = 0; j < matrixA->cols; j++)
@@ -52,6 +63,7 @@ void readMatrices(Matrix *matrixA, Matrix *matrixB, int testCase)
         matrixB->data[i] = (int *)malloc(colsB * sizeof(int));
     }
 
+    // Read matrix elements from file
     for (int i = 0; i < matrixB->rows; i++)
     {
         for (int j = 0; j < matrixB->cols; j++)
@@ -77,6 +89,74 @@ void printMatrix(Matrix *matrix)
         }
         printf("\n");
     }
+    printf("\n");
+}
+
+void *computeElement(void *arg)
+{
+    // Get our arguments from the void pointer
+    ThreadArgs *threadArgs = (ThreadArgs *)arg;
+
+    // Start computing the element
+    int ans = 0;
+    for (int i = 0; i < threadArgs->matrixA->cols; i++)
+    {
+        ans += threadArgs->matrixA->data[threadArgs->currRow][i] * threadArgs->matrixB->data[i][threadArgs->currCol];
+    }
+
+    threadArgs->matrixResult->data[threadArgs->currRow][threadArgs->currCol] = ans;
+
+    return NULL;
+}
+
+void elementMatrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult)
+{
+    // Check if matrices can be multiplied first
+    if (matrixA->cols != matrixB->rows)
+    {
+        printf("Can't multiply! Dimension are not right\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Matrix can be multiplied
+    matrixResult->rows = matrixA->rows;
+    matrixResult->cols = matrixB->cols;
+
+    // Allocate space for the resulting matrix
+    int rows = matrixA->rows;
+    int cols = matrixB->cols;
+    matrixResult->data = (int **)malloc(rows * sizeof(int *));
+    for (int i = 0; i < rows; i++)
+    {
+        matrixResult->data[i] = (int *)malloc(cols * sizeof(int));
+    }
+
+    // Start threading the multiplications
+    int numThreads = rows * cols;
+    pthread_t threads[numThreads]; // Array to store all threads
+
+    ThreadArgs currThreadArgs[numThreads];
+    int currThread = 0;
+    for (int row = 0; row < rows; row++)
+    {
+        for (int col = 0; col < cols; col++)
+        {
+            currThreadArgs[currThread].matrixA = matrixA;
+            currThreadArgs[currThread].matrixB = matrixB;
+            currThreadArgs[currThread].matrixResult = matrixResult;
+            currThreadArgs[currThread].currRow = row;
+            currThreadArgs[currThread].currCol = col;
+
+            pthread_create(&threads[currThread], NULL, computeElement, (void *)&currThreadArgs[currThread]);
+            currThread++;
+        }
+    }
+
+    // Wait for all threads to finish
+    for (int i = 0; i < numThreads; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
 }
 
 int main()
@@ -85,7 +165,26 @@ int main()
     Matrix matrixA, matrixB;
     int testCase = 1; // To specify which file
     readMatrices(&matrixA, &matrixB, testCase);
+
+    // Print matrices to check if read is correct
+    printf("Matrix 1:\n");
     printMatrix(&matrixA);
+    printf("Matrix 2:\n");
     printMatrix(&matrixB);
+
+    // Computation of each element of the output matrix happens in a thread
+    Matrix matrixResultElement;
+    clock_t start, end;
+
+    start = clock();
+    elementMatrixMul(&matrixA, &matrixB, &matrixResultElement);
+    end = clock();
+
+    double elementMulTime = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Matrix Multiplication Result:\n");
+    printMatrix(&matrixResultElement);
+    printf("END1\tTime took: %f\n", elementMulTime);
+
+    // Computation of each row of the output matrix happens in a thread
     return 0;
 }
