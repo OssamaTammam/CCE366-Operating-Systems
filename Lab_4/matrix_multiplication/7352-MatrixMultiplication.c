@@ -173,18 +173,30 @@ int main()
     printMatrix(&matrixB);
 
     // Computation of each element of the output matrix happens in a thread
-    Matrix matrixResultElement;
+    double elementTime;
     clock_t start, end;
+
+    Matrix matrixResultElement;
 
     start = clock();
     elementMatrixMul(&matrixA, &matrixB, &matrixResultElement);
     end = clock();
 
-    double elementMulTime = ((double)(end - start)) / CLOCKS_PER_SEC;
+    elementTime = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("Matrix Multiplication Result:\n");
     printMatrix(&matrixResultElement);
-    printf("END1\tTime took: %f\n", elementMulTime);
+    printf("END1\tTime took: %f\n\n", elementTime);
 
     // Computation of each row of the output matrix happens in a thread
+    Matrix matrixResultRow;
+
+    start = clock();
+    elementMatrixMul(&matrixA, &matrixB, &matrixResultRow);
+    end = clock();
+
+    elementTime = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Matrix Multiplication Result:\n");
+    printMatrix(&matrixResultRow);
+    printf("END2\tTime took: %f\n\n", elementTime);
     return 0;
 }
