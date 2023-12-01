@@ -111,35 +111,15 @@ void *computeElement(void *arg)
 
 void elementMatrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult)
 {
-    // Check if matrices can be multiplied first
-    if (matrixA->cols != matrixB->rows)
-    {
-        printf("Can't multiply! Dimension are not right\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Matrix can be multiplied
-    matrixResult->rows = matrixA->rows;
-    matrixResult->cols = matrixB->cols;
-
-    // Allocate space for the resulting matrix
-    int rows = matrixA->rows;
-    int cols = matrixB->cols;
-    matrixResult->data = (int **)malloc(rows * sizeof(int *));
-    for (int i = 0; i < rows; i++)
-    {
-        matrixResult->data[i] = (int *)malloc(cols * sizeof(int));
-    }
-
     // Start threading the multiplications
-    int numThreads = rows * cols;
+    int numThreads = matrixResult->rows * matrixResult->cols;
     pthread_t threads[numThreads]; // Array to store all threads
 
     ThreadArgs currThreadArgs[numThreads];
     int currThread = 0;
-    for (int row = 0; row < rows; row++)
+    for (int row = 0; row < matrixResult->rows; row++)
     {
-        for (int col = 0; col < cols; col++)
+        for (int col = 0; col < matrixResult->cols; col++)
         {
             currThreadArgs[currThread].matrixA = matrixA;
             currThreadArgs[currThread].matrixB = matrixB;
@@ -157,6 +137,77 @@ void elementMatrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult)
     {
         pthread_join(threads[i], NULL);
     }
+}
+
+void *computeRow(void *arg)
+{
+    // Get our arguments from the void pointer
+    ThreadArgs *threadArgs = (ThreadArgs *)arg;
+    int rowResult = threadArgs->currRow;
+
+    // Start computing the element
+    for (int colResult = 0; colResult < threadArgs->matrixB->cols; colResult++)
+    {
+        int ans = 0;
+        for (int i = 0; i < threadArgs->matrixA->cols; i++)
+        {
+            ans += threadArgs->matrixA->data[threadArgs->currRow][i] * threadArgs->matrixB->data[i][colResult];
+        }
+
+        threadArgs->matrixResult->data[rowResult][colResult] = ans;
+    }
+
+    return NULL;
+}
+
+void rowMatrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult)
+{
+    // Start threading the multiplications
+    int numThreads = matrixResult->rows;
+    pthread_t threads[numThreads]; // Array to store all threads
+
+    ThreadArgs currThreadArgs[numThreads];
+    int currThread = 0;
+    for (int row = 0; row < matrixResult->rows; row++)
+    {
+        currThreadArgs[currThread].matrixA = matrixA;
+        currThreadArgs[currThread].matrixB = matrixB;
+        currThreadArgs[currThread].matrixResult = matrixResult;
+        currThreadArgs[currThread].currRow = row;
+
+        pthread_create(&threads[currThread], NULL, computeRow, (void *)&currThreadArgs[currThread]);
+        currThread++;
+    }
+
+    // Wait for all threads to finish
+    for (int i = 0; i < numThreads; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
+}
+
+void matrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult, int elementRowFlag)
+{
+    // Check if matrices can be multiplied first
+    if (matrixA->cols != matrixB->rows)
+    {
+        printf("Can't multiply! Dimension are not right\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Matrices can be multiplied
+    // Allocate space for the resulting matrix
+    matrixResult->rows = matrixA->rows;
+    matrixResult->cols = matrixB->cols;
+
+    matrixResult->data = (int **)malloc(matrixResult->rows * sizeof(int *));
+    for (int i = 0; i < matrixResult->rows; i++)
+    {
+        matrixResult->data[i] = (int *)malloc(matrixResult->cols * sizeof(int));
+    }
+
+    // 0 -> element threading, 1 -> row threading
+    elementRowFlag ? rowMatrixMul(matrixA, matrixB, matrixResult) : elementMatrixMul(matrixA, matrixB, matrixResult);
 }
 
 int main()
@@ -179,7 +230,7 @@ int main()
     Matrix matrixResultElement;
 
     start = clock();
-    elementMatrixMul(&matrixA, &matrixB, &matrixResultElement);
+    matrixMul(&matrixA, &matrixB, &matrixResultElement, 0);
     end = clock();
 
     elementTime = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -191,12 +242,13 @@ int main()
     Matrix matrixResultRow;
 
     start = clock();
-    elementMatrixMul(&matrixA, &matrixB, &matrixResultRow);
+    matrixMul(&matrixA, &matrixB, &matrixResultRow, 1);
     end = clock();
 
     elementTime = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("Matrix Multiplication Result:\n");
     printMatrix(&matrixResultRow);
     printf("END2\tTime took: %f\n\n", elementTime);
+
     return 0;
 }
