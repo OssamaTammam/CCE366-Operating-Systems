@@ -75,6 +75,7 @@ void readMatrices(Matrix *matrixA, Matrix *matrixB, int testCase)
     fclose(matricesFile);
 }
 
+// Print the matrix
 void printMatrix(Matrix *matrix)
 {
     printf("No of rows: %d\nNo of columns: %d\n", matrix->rows, matrix->cols);
@@ -92,6 +93,7 @@ void printMatrix(Matrix *matrix)
     printf("\n");
 }
 
+// Compute a single element of the resulting matrix
 void *computeElement(void *arg)
 {
     // Get our arguments from the void pointer
@@ -109,6 +111,7 @@ void *computeElement(void *arg)
     return NULL;
 }
 
+// Multiply matrices by computing each element in a separate thread
 void elementMatrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult)
 {
     // Start threading the multiplications
@@ -139,6 +142,7 @@ void elementMatrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult)
     }
 }
 
+// Compute a single row of the resulting matrix
 void *computeRow(void *arg)
 {
     // Get our arguments from the void pointer
@@ -160,6 +164,7 @@ void *computeRow(void *arg)
     return NULL;
 }
 
+// Multiply matrices by computing each row in a separate thread
 void rowMatrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult)
 {
     // Start threading the multiplications
@@ -186,6 +191,7 @@ void rowMatrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult)
     }
 }
 
+// Multiply matrices based on the specified flag (0 for element threading, 1 for row threading)
 void matrixMul(Matrix *matrixA, Matrix *matrixB, Matrix *matrixResult, int elementRowFlag)
 {
     // Check if matrices can be multiplied first
