@@ -10,10 +10,8 @@ typedef struct
     int high
 } ThreadArgs;
 
-int readArray(int **arr, int testCase)
+int readArray(int **arr, char *fileName)
 {
-    char fileName[30]; // String to store file name assuming test cases don't go past 3 digits
-    sprintf(fileName, "test_cases/test-case-%d.txt", testCase);
     FILE *arrayFile = fopen(fileName, "r");
 
     if (arrayFile == NULL)
@@ -24,7 +22,7 @@ int readArray(int **arr, int testCase)
 
     int noElement;
     fscanf(arrayFile, "%d", &noElement);
-    *arr = malloc(noElement * sizeof(int));
+    *arr = (int *)malloc(noElement * sizeof(int));
 
     for (int i = 0; i < noElement; i++)
     {
@@ -40,7 +38,7 @@ void printArray(int **arr, int noElements)
 {
     for (int i = 0; i < noElements; i++)
     {
-        printf("%d ", arr[i]);
+        printf("%d ", (*arr)[i]);
     }
     printf("\n");
 }
@@ -135,10 +133,18 @@ void mergeSort(int **arr, int noElements)
 
 int main()
 {
+    char *fileName = malloc(100);
+    printf("Please enter file name: ");
+    scanf("%99s", fileName);
+
     int *arr;
-    int testCase = 1; // To specify which file
-    int noElements = readArray(&arr, testCase);
+    int noElements = readArray(&arr, fileName);
+    printArray(&arr, noElements);
+
+    free(fileName);
+
     mergeSort(&arr, noElements);
+
     printf("Sorted array:\n");
     printArray(&arr, noElements);
     return 0;

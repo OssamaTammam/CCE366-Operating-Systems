@@ -20,10 +20,8 @@ typedef struct
 } ThreadArgs;
 
 // Read the matrices from the file and return them
-void readMatrices(Matrix *matrixA, Matrix *matrixB, int testCase)
+void readMatrices(Matrix *matrixA, Matrix *matrixB, char *fileName)
 {
-    char fileName[30]; // String to store file name assuming test cases don't go past 3 digits
-    sprintf(fileName, "test_cases/test-case-%d.txt", testCase);
     FILE *matricesFile = fopen(fileName, "r");
 
     // Error handling in case file doesn't exist or something
@@ -220,8 +218,11 @@ int main()
 {
     // Read the matrices from a file
     Matrix matrixA, matrixB;
-    int testCase = 1; // To specify which file
-    readMatrices(&matrixA, &matrixB, testCase);
+    char *fileName = malloc(100);
+    printf("Please enter file name: ");
+    scanf("%99s", fileName);
+    readMatrices(&matrixA, &matrixB, fileName);
+    free(fileName);
 
     // Print matrices to check if read is correct
     printf("Matrix 1:\n");
