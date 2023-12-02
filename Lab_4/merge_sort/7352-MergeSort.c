@@ -151,5 +151,6 @@ int main()
 
     printf("Sorted array:\n");
     printArray(&arr, noElements);
+
     return 0;
 }
