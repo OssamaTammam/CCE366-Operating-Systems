@@ -35,12 +35,12 @@ Implemented two types of matrix multiplication algorithm and merge sort algorith
     ```
 * The program then feeds that input into the ```matrixMul``` function that then based on the ```elementRowFlag``` decides the way we are gonna do our multithreading which be either multithreading each element or multithreading each row
 * The program then starts multithreading and waits for the threads to join then prints the output matrix including the time it took to compare between element multithreading and row multithreading on the form
-```
+    ```
     [result matrix entries]
     END1 [elapsed time of procedure 1]
     [result matrix entries]
     END2 [elapsed time of procedure 2]
-```
+    ```
 
 # Merge Sort
 ## Overview
@@ -48,21 +48,21 @@ Given the divide and conquer nature of merge sort implementing recursive multith
 
 ## Data structures
 * ThreadArgs data structure to pass on arguments to the thread functions
-```c
+    ```c
     typedef struct
     {
         int **arr;
         int low;
         int high
     } ThreadArgs;
-```
+    ```
 
 ## Program Flow
 * Program takes the input .txt file name containing the test case on the form and dynamically allocating memory to them
-```c
+    ```c
     [number of elements]
     Array elements that are space-separated
-```
+    ```
 * Program then calls the ```mergeSort``` function which starts our multithreaded merge sort algorithm using ```_mergeSort``` helper function
     ### Merge Sort Algorithm
     * Base Case: if the ```low>=high``` that means we successfully recursed and divided the entire array and we should start the conquer step
