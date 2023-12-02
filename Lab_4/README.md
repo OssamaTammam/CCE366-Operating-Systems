@@ -5,16 +5,16 @@ Implemented two types of matrix multiplication algorithm and merge sort algorith
 # Matrix Multiplication
 ## Data Structures
 * Matrix data structure instead of just using 2D arrays
- ```c
+    ```c
     typedef struct
     {
         int rows;
         int cols;
         int **data; 
     } Matrix;
-```
+    ```
 * ThreadArgs data structure to pass on arguments to the thread functions
-```c
+    ```c
     typedef struct
     {
         Matrix *matrixA;
@@ -23,7 +23,7 @@ Implemented two types of matrix multiplication algorithm and merge sort algorith
         int currRow;
         int currCol;
     } ThreadArgs;
-```
+    ```
 
 ## Program Flow
 * Program takes the input .txt file name containing the test case on the form and dynamically allocating memory to them
