@@ -43,7 +43,7 @@ void printArray(int **arr, int noElements)
     printf("\n");
 }
 
-void merge(int *arr, int low, int high, int middle)
+void merge(int **arr, int low, int high, int middle)
 {
     // Init helper arrays
     int noElementsLeft = middle - low + 1;
@@ -53,11 +53,11 @@ void merge(int *arr, int low, int high, int middle)
     // Copy elements of original array into them
     for (int i = 0; i < noElementsLeft; i++)
     {
-        leftArray[i] = arr[low + i];
+        leftArray[i] = (*arr)[low + i];
     }
     for (int j = 0; j < noElementRight; j++)
     {
-        rightArray[j] = arr[middle + 1 + j];
+        rightArray[j] = (*arr)[middle + 1 + j];
     }
 
     // Merge the arrays
@@ -69,24 +69,25 @@ void merge(int *arr, int low, int high, int middle)
     {
         if (leftArray[i] < rightArray[j])
         {
-            arr[k++] = leftArray[i++];
+            (*arr)[k++] = leftArray[i++];
         }
         else
         {
-            arr[k++] = rightArray[j++];
+            (*arr)[k++] = rightArray[j++];
         }
     }
 
     // Check for any remaining elements
     while (i < noElementsLeft)
     {
-        arr[k++] = leftArray[i++];
+        (*arr)[k++] = leftArray[i++];
     }
     while (j < noElementRight)
     {
-        arr[k++] = rightArray[j++];
+        (*arr)[k++] = rightArray[j++];
     }
 }
+
 void *_mergeSort(void *arg)
 {
     ThreadArgs *args = (ThreadArgs *)arg;
@@ -94,6 +95,7 @@ void *_mergeSort(void *arg)
     if (args->low >= args->high)
         return;
 
+    // Calculate the middle of the current divided array
     int middle = (args->high + args->low) / 2;
 
     // Args for divide step
@@ -127,6 +129,8 @@ void mergeSort(int **arr, int noElements)
     args.high = noElements - 1;
     args.arr = arr;
     pthread_t startingThread;
+
+    // Start the merge sort algorithm
     pthread_create(&startingThread, NULL, _mergeSort, (void *)&args);
     pthread_join(startingThread, NULL);
 }
