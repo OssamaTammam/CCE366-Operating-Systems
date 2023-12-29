@@ -22,5 +22,6 @@ void initializeQueue(Queue *queue);
 int isEmpty(Queue *queue);
 void enqueue(Queue *queue, int data);
 int dequeue(Queue *queue);
+int getSize(Queue *queue);
 
 #endif // QUEUE_H

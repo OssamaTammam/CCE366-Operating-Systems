@@ -87,3 +87,16 @@ int dequeue(Queue *queue)
     free(temp);
     return data;
 }
+
+int getSize(Queue *queue)
+{
+    Node *currNode = queue->front;
+    int size = 0;
+    while (currNode != NULL)
+    {
+        size++;
+        currNode = currNode->next;
+    }
+
+    return size;
+}

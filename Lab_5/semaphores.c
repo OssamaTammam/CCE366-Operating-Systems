@@ -34,7 +34,7 @@ sendMessages(void *args)
     while (1)
     {
         // Sleep for a random amount of time between 1 and 20 seconds
-        randomTime = 1 + (rand() % 20);
+        randomTime = 1 + (rand() % 1);
 
         sleep(randomTime);
 
@@ -65,7 +65,7 @@ void *monitorMessages(void *args)
     while (1)
     {
         // Sleep for a random amount of time between 1 and 20 seconds
-        randomTime = 1 + (rand() % 20);
+        randomTime = 1 + (rand() % 2);
         sleep(randomTime);
 
         // Wait until the thread is the only one accessing the counter
@@ -83,8 +83,13 @@ void *monitorMessages(void *args)
 
         // Producer part of the problem
         // Check if our buffer size can accept new additions
-        sem_getvalue(&bufferEmpty, &semValue);
-        if (semValue == 0)
+        if (sem_getvalue(&bufferEmpty, &semValue) > -1)
+        {
+            int noElements = getSize(buffer);
+            printf("-----------this is my sem value {%d} - noELement: {%d}\n", semValue, noElements);
+        }
+
+        if (semValue == BUFFER_SIZE)
         {
             printf("Monitor Thread: BUFFER FULL!!\n");
         }
@@ -112,7 +117,7 @@ void *collectMessages(void *buffer)
     while (1)
     {
         // Sleep for a random amount of time between 1 and 20 seconds
-        randomTime = 1 + (rand() % 20);
+        randomTime = 1 + (rand() % 5);
         sleep(randomTime);
 
         printf("Collector Thread: Waiting to read from buffer\n");
